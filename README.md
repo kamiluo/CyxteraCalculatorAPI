@@ -5,7 +5,7 @@ Calculadora para prueba Cyxtera
 ## Instalación
 
 * Clonar el proyecto e importar en el IDE de Spring Tools.
-* Ejecutar Maven -> Update Project..
+* Sobre el proyecto ejecutar Maven -> Update Project..
 * Verificar la instalación.
 
 # Operaciones Basicas

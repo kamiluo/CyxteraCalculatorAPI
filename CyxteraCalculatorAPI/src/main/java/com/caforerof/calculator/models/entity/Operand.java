@@ -5,16 +5,21 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="operands")
-public class Operand implements Serializable{
+@NamedQuery(name = "Operand.findActiveBySessionId", query = "SELECT c FROM Operand c where c.sessionId.id = ?1 and c.status = 'Activo' ")
+public class Operand implements Serializable{ 
 	
 	/**
 	 * 
@@ -24,9 +29,13 @@ public class Operand implements Serializable{
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
-	private Long value;
+	private Double value;
 		
 	private String status;
+	
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "session_id")
+    private SessionId sessionId;
 	
 	@Column(name="create_at")
 	@Temporal(TemporalType.DATE)
@@ -56,12 +65,20 @@ public class Operand implements Serializable{
 		this.createAt = createAt;
 	}
 
-	public Long getValue() {
+	public Double getValue() {
 		return value;
 	}
 
-	public void setValue(Long value) {
+	public void setValue(Double value) {
 		this.value = value;
+	}
+
+	public SessionId getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(SessionId sessionId) {
+		this.sessionId = sessionId;
 	}
 	
 	

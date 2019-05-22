@@ -30,10 +30,10 @@ public class SessionId implements Serializable {
 
 	private String status;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "sessionId", cascade = CascadeType.ALL)
 	private List<Operand> operands = new ArrayList<>();
 	
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "sessionId", cascade = CascadeType.ALL)
 	private List<Operator> operators = new ArrayList<>();
 
 	@Column(name = "create_at")
@@ -64,4 +64,27 @@ public class SessionId implements Serializable {
 		this.createAt = createAt;
 	}
 
+	public List<Operand> getOperands() {
+		return operands;
+	}
+
+	public void setOperands(List<Operand> operands) {
+		this.operands = operands;
+	}
+
+	public List<Operator> getOperators() {
+		return operators;
+	}
+
+	public void setOperators(List<Operator> operators) {
+		this.operators = operators;
+	}
+	
+	public void addOperand(Operand operand) {
+		this.operands.add(operand);
+	}
+
+	public void addOperator(Operator operator) {
+		this.operators.add(operator);
+	}
 }

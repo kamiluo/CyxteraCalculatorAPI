@@ -6,7 +6,7 @@ Calculadora para prueba Cyxtera
 
 * Clonar el proyecto e importar en el IDE de Spring Tools.
 * Sobre el proyecto ejecutar Maven -> Update Project..
-* Verificar la instalación.
+* Sobre el proyecto ejecutar Run As -> Spring Boot App.
 
 # Operaciones Basicas
 # GetSessionID

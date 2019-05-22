@@ -82,11 +82,6 @@ public class OperatorServiceImpl implements IOperatorService {
 			resultOperand = operandService.createOperand(id, result);
 			
 		}
-		opersActive = operatorDao.findActiveBySessionId(id);
-		for (Operator operator : opersActive) {
-			System.out.println(
-					"Id: " + operator.getId() + " Valor: " + operator.getValue() + " Estado:" + operator.getStatus());
-		}
 		return resultOperand;
 	}
 

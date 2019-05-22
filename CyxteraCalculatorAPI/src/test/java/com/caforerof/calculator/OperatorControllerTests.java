@@ -8,8 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,13 +25,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.caforerof.calculator.controller.OperatorController;
 import com.caforerof.calculator.models.dao.IOperandDao;
-import com.caforerof.calculator.models.dao.ISessionIdDao;
 import com.caforerof.calculator.models.entity.Operand;
 import com.caforerof.calculator.models.entity.Operator;
 import com.caforerof.calculator.models.entity.SessionId;
 import com.caforerof.calculator.models.services.ISessionIdService;
 import com.caforerof.calculator.models.services.OperandServiceImpl;
-import com.caforerof.calculator.models.services.OperatorServiceImpl;;
+import com.caforerof.calculator.models.services.OperatorServiceImpl;
+import com.caforerof.calculator.models.services.SessionIdServiceImpl;;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -55,7 +53,7 @@ public class OperatorControllerTests {
     @Mock
     private IOperandDao operandDao;
     @Mock
-    private ISessionIdDao sessionDao;
+    private SessionIdServiceImpl sessionDao;
     
     
     @Before
@@ -69,7 +67,7 @@ public class OperatorControllerTests {
         
         ReflectionTestUtils.setField(operatorService, "operandService", operandService);
         ReflectionTestUtils.setField(operandService, "operandDao", operandDao);
-        ReflectionTestUtils.setField(operandService, "sessionDao", sessionDao);
+        ReflectionTestUtils.setField(operandService, "sessionService", sessionDao);
     }
     
     
@@ -140,7 +138,7 @@ public class OperatorControllerTests {
 	private void setEnvironment(String operator, double firstOperand, double secondOperand) throws SQLException {
 		
 		SessionId mockedSessionId = Mockito.mock(SessionId.class);
-        Mockito.when(sessionDao.findById(Mockito.anyLong())).thenReturn(Optional.of(mockedSessionId));
+        Mockito.when(sessionDao.findById(Mockito.anyLong())).thenReturn(mockedSessionId);
     	Operand mockedOperand = Mockito.mock(Operand.class);
     	Operand mockedOperand2 = Mockito.mock(Operand.class);
     	

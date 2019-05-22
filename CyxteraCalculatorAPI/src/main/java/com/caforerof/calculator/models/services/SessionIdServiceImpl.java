@@ -1,6 +1,8 @@
 package com.caforerof.calculator.models.services;
 
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ public class SessionIdServiceImpl implements ISessionIdService{
 	
 	@Override
 	@Transactional
-	public SessionId createSessionId() {
+	public SessionId createSessionId() throws SQLException {
 		SessionId sessionId = new SessionId();
 		sessionId.setStatus("Activo");
 		sessionId.setCreateAt(new Date());
@@ -31,6 +33,11 @@ public class SessionIdServiceImpl implements ISessionIdService{
 		// TODO Auto-generated method stub
 		SessionId sessionId =sessionDao.findById(id).orElse(null);
 		return sessionId;
+	}
+
+	@Override
+	public List<SessionId> findAll() {
+		return sessionDao.findAll();
 	}
 
 }

@@ -4,39 +4,46 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.caforerof.calculator.models.dao.IOperatorDao;
-import com.caforerof.calculator.models.dao.ISessionIdDao;
 import com.caforerof.calculator.models.entity.Operand;
 import com.caforerof.calculator.models.entity.Operator;
 import com.caforerof.calculator.models.entity.SessionId;
+import com.caforerof.calculator.responses.CustomErrorCalcException;
 
 @Service
-public class OperatorServiceImpl implements IOperatorService{
+public class OperatorServiceImpl implements IOperatorService {
 
 	@Autowired
 	IOperatorDao operatorDao;
-	
+
 	@Autowired
-	ISessionIdDao sessionDao;
+	IOperandService operandService;
+
+	@Autowired
+	ISessionIdService sessionService;
 
 	@Override
 	@Transactional
 	public Operator createOperator(Long id, String value) {
-		SessionId sessionId = sessionDao.findById(id).orElse(null);
+		SessionId sessionId = sessionService.findById(id);
+		List<Operator> operActives = this.findActiveBySessionId(id);
 		Operator operator = new Operator();
-		operator.setStatus("Activo");
-		operator.setValue(value);
-		operator.setCreateAt(new Date());
-		operator.setSessionId(sessionId);
-		operatorDao.save(operator);
-		List<Operator> operators = sessionId.getOperators();
-		for (Operator oper2 : operators) {
-			System.out.println("Id: " + oper2.getId() + 
-					           " Valor: " + oper2.getValue() +
-					           " Estado:" + oper2.getStatus());
+		if (operActives.size() < 1) {
+			operator.setStatus("Activo");
+			operator.setValue(value);
+			operator.setCreateAt(new Date());
+			operator.setSessionId(sessionId);
+			operatorDao.save(operator);
+		} else if (operActives.size() == 1) {
+			operActives.get(0).setValue(value);
+			// Se actualiza el operando existente con el valor que llega.
+			operator = operatorDao.save(operActives.get(0));
+		} else {
+			System.out.println("Error interno, por favor cree una nueva sesión");
 		}
 		return operator;
 	}
@@ -50,15 +57,52 @@ public class OperatorServiceImpl implements IOperatorService{
 
 	@Override
 	@Transactional
+	@Modifying
 	public Operand execResult(Operator op, Long id) {
-		List<Operator> operActivos = operatorDao.findActiveBySessionId(id);
-		for (Operator operator : operActivos) {
-			System.out.println("Id: " + operator.getId() + 
-			           " Valor: " + operator.getValue() +
-			           " Estado:" + operator.getStatus());
+		List<Operator> opersActive = findActiveBySessionId(id);
+		List<Operand> operandsActive = operandService.findActiveBySessionId(id);
+		String operType;
+		Operand resultOperand = null;
+		
+		if (operandsActive.size() < 1) {
+			throw new CustomErrorCalcException("No hay operandos por favor inserte al menos uno.", 1);
 		}
-		return null;
+		
+		if (opersActive.size() > 1) {
+			throw new CustomErrorCalcException("Hay más de un operador activo.", 2);
+		} else if (opersActive.size() < 1) {
+			throw new CustomErrorCalcException("No hay operadores.", 3);
+		} else {
+			operType = opersActive.get(0).getValue();
+			UtilService util = new UtilService();
+			Double result = util.operation(operandsActive, operType);
+			System.out.println("Resultado = " + result);
+			this.updateStatusBySessionIdActive(id);
+			operandService.updateStatusBySessionIdActive(id);
+			resultOperand = operandService.createOperand(id, result);
+			
+		}
+		opersActive = operatorDao.findActiveBySessionId(id);
+		for (Operator operator : opersActive) {
+			System.out.println(
+					"Id: " + operator.getId() + " Valor: " + operator.getValue() + " Estado:" + operator.getStatus());
+		}
+		return resultOperand;
 	}
 
+	@Override
+	public void updateStatusBySessionIdActive(Long sessionId) {
+		operatorDao.updateStatusBySessionIdActive(sessionId);
+	}
+
+	@Override
+	public List<Operator> findActiveBySessionId(Long sessionId) {
+		return operatorDao.findActiveBySessionId(sessionId);
+	}
+
+	@Override
+	public List<Operator> findAll() {
+		return operatorDao.findAll();
+	}
 
 }

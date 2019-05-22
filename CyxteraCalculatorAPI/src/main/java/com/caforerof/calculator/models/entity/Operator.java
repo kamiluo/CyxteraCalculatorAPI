@@ -19,6 +19,8 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "operators")
 @NamedQuery(name = "Operator.findActiveBySessionId", query = "SELECT c FROM Operator c where c.sessionId.id = :sessionId and c.status = 'Activo' ")
+@NamedQuery(name = "Operator.findAll", query = "SELECT c FROM Operator c ")
+@NamedQuery(name = "Operator.updateStatusBySessionIdActive", query = "UPDATE Operator c set c.status = 'Inactivo' where c.sessionId.id = :sessionId and c.status = 'Activo' ")
 public class Operator implements Serializable {
 
 	/**

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.caforerof.calculator.models.dao.IOperandDao;
-import com.caforerof.calculator.models.dao.ISessionIdDao;
 import com.caforerof.calculator.models.entity.Operand;
 import com.caforerof.calculator.models.entity.SessionId;
+import com.caforerof.calculator.responses.CustomErrorCalcException;
 
 @Service
 public class OperandServiceImpl implements IOperandService{
@@ -19,24 +19,21 @@ public class OperandServiceImpl implements IOperandService{
 	IOperandDao operandDao;
 	
 	@Autowired
-	ISessionIdDao sessionDao;
+	SessionIdServiceImpl sessionService;
 
 	@Override
 	@Transactional
 	public Operand createOperand(Long id, Double value) {
-		SessionId sessionId = sessionDao.findById(id).orElse(null);
+		SessionId sessionId = sessionService.findById(id);
+		if(sessionId == null) {
+			throw new CustomErrorCalcException("El sessionId no existe.", 5);
+		}
 		Operand operand = new Operand();
 		operand.setStatus("Activo");
 		operand.setValue(value);
 		operand.setCreateAt(new Date());
 		operand.setSessionId(sessionId);
 		operandDao.save(operand);
-		List<Operand> operandos = sessionId.getOperands();
-		for (Operand operand2 : operandos) {
-			System.out.println("Id: " + operand2.getId() + 
-					           " Valor: " + operand2.getValue() +
-					           " Estado:" + operand2.getStatus());
-		}
 		return operand;
 	}
 
@@ -45,6 +42,21 @@ public class OperandServiceImpl implements IOperandService{
 	public List<Operand> findBySessionId(Long id) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void updateStatusBySessionIdActive(Long sessionId) {
+		operandDao.updateStatusBySessionIdActive(sessionId);
+	}
+
+	@Override
+	public List<Operand> findActiveBySessionId(Long sessionId) {
+		return operandDao.findActiveBySessionId(sessionId);
+	}
+
+	@Override
+	public List<Operand> findAll() {
+		return operandDao.findAll();
 	}
 
 }
